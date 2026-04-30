@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIO IMAP CHECKER V3 — professional email combo checker</title>
+<meta name="description" content="AIO V3 — IMAP / SMTP / Outlook Graph engine, MX+SRV+Autoconfig discovery, 500 threads, inbox capture by keyword, HQ scoring. $30 / year. No trials.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&family=Inter:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="logo.png">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --black: #000;
+  --white: #fff;
+  --offwhite: #e8e8e8;
+  --offblack: #0a0a0a;
+  --gray: #6b6b6b;
+  --line: #1a1a1a;
+  --line-bright: #2a2a2a;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--black);
+  color: var(--white);
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+::selection { background: var(--white); color: var(--black); }
+a { color: inherit; text-decoration: none; }
+img { display: block; max-width: 100%; }
+
+/* ============ NAV ============ */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  padding: 18px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 100;
+  border-bottom: 1px solid transparent;
+  backdrop-filter: blur(10px);
+  background: rgba(0,0,0,0.7);
+  transition: border-color 0.3s;
+}
+nav.scrolled { border-bottom-color: var(--line); }
+nav .brand {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-size: 14px;
+}
+nav .meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--gray);
+  text-transform: uppercase;
+}
+
+/* ============ HERO ============ */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 120px 32px 80px;
+  text-align: center;
+  border-bottom: 1px solid var(--line);
+  position: relative;
+}
+.logo-mark {
+  width: 96px; height: 96px;
+  filter: invert(1) grayscale(1) contrast(1.5);
+  margin-bottom: 56px;
+  opacity: 0.95;
+}
+.hero h1 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: clamp(44px, 9vw, 128px);
+  letter-spacing: -0.05em;
+  line-height: 0.92;
+  margin-bottom: 24px;
+}
+.hero h1 .slash {
+  color: var(--gray);
+  font-weight: 300;
+  margin: 0 0.05em;
+}
+.hero .version-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  color: var(--gray);
+  margin-bottom: 32px;
+  text-transform: uppercase;
+  display: inline-block;
+  border-top: 1px solid var(--line-bright);
+  border-bottom: 1px solid var(--line-bright);
+  padding: 8px 18px;
+}
+.hero .tagline {
+  font-size: clamp(17px, 2.2vw, 22px);
+  color: var(--offwhite);
+  font-weight: 300;
+  max-width: 640px;
+  margin-bottom: 88px;
+  line-height: 1.55;
+}
+.hero-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  width: 100%;
+  max-width: 920px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.hero-stats .stat {
+  padding: 32px 12px;
+  text-align: center;
+  border-right: 1px solid var(--line);
+}
+.hero-stats .stat:last-child { border-right: none; }
+.hero-stats .num {
+  display: block;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(28px, 4.5vw, 52px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  margin-bottom: 12px;
+}
+.hero-stats .label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  color: var(--gray);
+  text-transform: uppercase;
+}
+@media (max-width: 700px) {
+  .hero-stats { grid-template-columns: repeat(2, 1fr); }
+  .hero-stats .stat:nth-child(2) { border-right: none; }
+  .hero-stats .stat:nth-child(1), .hero-stats .stat:nth-child(2) { border-bottom: 1px solid var(--line); }
+}
+
+/* ============ SECTION COMMON ============ */
+section { padding: 140px 32px; border-bottom: 1px solid var(--line); }
+.container { max-width: 1240px; margin: 0 auto; }
+
+.section-head { margin-bottom: 80px; }
+.section-head .num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  color: var(--gray);
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 24px;
+}
+.section-head h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: clamp(34px, 5.5vw, 76px);
+  letter-spacing: -0.05em;
+  line-height: 1;
+}
+.section-head .lead {
+  font-size: clamp(15px, 1.5vw, 19px);
+  color: var(--offwhite);
+  font-weight: 300;
+  max-width: 720px;
+  margin-top: 28px;
+  line-height: 1.55;
+}
+
+/* ============ FEATURES ============ */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  border: 1px solid var(--line);
+}
+.feature {
+  padding: 48px 40px;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  transition: background 0.2s;
+}
+.feature:hover { background: var(--offblack); }
+.feature:nth-child(2n) { border-right: none; }
+.feature:nth-last-child(-n+2) { border-bottom: none; }
+.feature .num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  color: var(--gray);
+  display: block;
+  margin-bottom: 20px;
+}
+.feature h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(20px, 2vw, 28px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  margin-bottom: 16px;
+}
+.feature p {
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: #b8b8b8;
+  font-weight: 300;
+}
+@media (max-width: 800px) {
+  .features-grid { grid-template-columns: 1fr; }
+  .feature { border-right: none !important; }
+  .feature:nth-last-child(2) { border-bottom: 1px solid var(--line); }
+}
+
+/* ============ SERVICES ============ */
+.services-summary {
+  display: flex;
+  align-items: baseline;
+  gap: 24px;
+  margin-bottom: 56px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--gray);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  flex-wrap: wrap;
+}
+.services-summary .count {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 64px;
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: -0.04em;
+  line-height: 1;
+  text-transform: none;
+}
+.logo-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border: 1px solid var(--line);
+}
+.logo-cell {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  position: relative;
+  transition: background 0.2s;
+}
+.logo-cell:hover { background: var(--offblack); }
+.logo-cell img {
+  width: 100%;
+  height: auto;
+  max-width: 56px;
+  max-height: 56px;
+  object-fit: contain;
+  opacity: 0.95;
+  transition: opacity 0.2s, transform 0.25s;
+}
+.logo-cell:hover img {
+  opacity: 1;
+  transform: scale(1.08);
+}
+.logo-cell .name {
+  position: absolute;
+  bottom: 6px; left: 0; right: 0;
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: var(--gray);
+  text-transform: uppercase;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.logo-cell:hover .name { opacity: 1; }
+.logo-cell .weight {
+  position: absolute;
+  top: 6px; right: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--gray);
+  letter-spacing: 0.05em;
+  opacity: 0.6;
+  transition: opacity 0.2s, color 0.2s;
+}
+.logo-cell:hover .weight { opacity: 1; color: var(--white); }
+.logo-cell-text { background: var(--offblack); }
+.logo-cell-text .logo-text {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  color: var(--white);
+  opacity: 0.95;
+  transition: opacity 0.2s, transform 0.25s;
+  text-transform: uppercase;
+}
+.logo-cell-text:hover .logo-text { opacity: 1; transform: scale(1.08); }
+.logo-cell:nth-child(7n) { border-right: none; }
+.logo-cell:nth-last-child(-n+7) { border-bottom: none; }
+@media (max-width: 1000px) {
+  .logo-grid { grid-template-columns: repeat(5, 1fr); }
+  .logo-cell { border-right: 1px solid var(--line) !important; border-bottom: 1px solid var(--line) !important; }
+  .logo-cell:nth-child(5n) { border-right: none !important; }
+}
+@media (max-width: 600px) {
+  .logo-grid { grid-template-columns: repeat(3, 1fr); }
+  .logo-cell:nth-child(5n) { border-right: 1px solid var(--line) !important; }
+  .logo-cell:nth-child(3n) { border-right: none !important; }
+}
+
+/* ============ PRICING ============ */
+.pricing { background: var(--offblack); }
+.pricing-wrap { display: flex; justify-content: center; }
+.price-card {
+  border: 1px solid var(--white);
+  padding: 56px 48px;
+  max-width: 540px;
+  width: 100%;
+  background: var(--black);
+}
+.price-card .label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.4em;
+  color: var(--gray);
+  text-transform: uppercase;
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--line);
+}
+.price-card .price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+.price-card .amount {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(80px, 14vw, 152px);
+  font-weight: 700;
+  letter-spacing: -0.07em;
+  line-height: 0.85;
+}
+.price-card .currency {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--gray);
+}
+.price-card .period {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--gray);
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  margin-bottom: 44px;
+}
+.price-card ul { list-style: none; border-top: 1px solid var(--line); }
+.price-card li {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 14.5px;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  color: var(--offwhite);
+}
+.price-card li::before {
+  content: "+";
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--white);
+  font-weight: 500;
+  flex-shrink: 0;
+  width: 14px;
+}
+.price-card li.killed { color: var(--gray); text-decoration: line-through; }
+.price-card li.killed::before { content: "×"; color: var(--gray); text-decoration: none; }
+
+.trial-killed-note {
+  margin-top: 36px;
+  padding: 22px;
+  border: 1px solid var(--line-bright);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--gray);
+}
+.trial-killed-note strong {
+  display: block;
+  color: var(--white);
+  font-weight: 500;
+  margin-bottom: 8px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-size: 11px;
+}
+
+/* ============ CONTACT ============ */
+.contact { text-align: center; padding: 160px 32px 220px; }
+.contact .telegram-handle {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(36px, 8vw, 96px);
+  font-weight: 700;
+  letter-spacing: -0.05em;
+  display: inline-block;
+  border-bottom: 2px solid var(--white);
+  padding: 0 8px 8px;
+  line-height: 1;
+  margin: 28px 0 44px;
+  transition: color 0.2s, background 0.2s;
+}
+.contact .telegram-handle:hover { background: var(--white); color: var(--black); }
+.contact .note {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--gray);
+  letter-spacing: 0.06em;
+  max-width: 620px;
+  margin: 0 auto;
+  line-height: 1.85;
+}
+.contact .note strong { color: var(--white); font-weight: 500; }
+.contact .pay-methods {
+  margin-top: 48px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  color: var(--gray);
+  text-transform: uppercase;
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.contact .pay-methods span { border: 1px solid var(--line-bright); padding: 8px 14px; }
+
+/* ============ FOOTER ============ */
+footer {
+  text-align: center;
+  padding: 56px 32px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--gray);
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+footer .build { opacity: 0.55; }
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <div class="brand">AIO</div>
+  <div class="meta">V3 / EN</div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <img src="logo.png" alt="AIO" class="logo-mark">
+
+  <div class="version-tag">V3 / IMAP + OUTLOOK GRAPH BUILD</div>
+
+  <h1>aio<span class="slash">/</span>checker</h1>
+
+  <p class="tagline">
+    Professional email combo checker.<br>
+    IMAP, SMTP, Outlook Graph — auto-discovery, inbox capture, HQ scoring.
+  </p>
+
+  <div class="hero-stats">
+    <div class="stat">
+      <span class="num">500</span>
+      <span class="label">threads</span>
+    </div>
+    <div class="stat">
+      <span class="num">3</span>
+      <span class="label">protocols</span>
+    </div>
+    <div class="stat">
+      <span class="num">71</span>
+      <span class="label">scored services</span>
+    </div>
+    <div class="stat">
+      <span class="num">~40MB</span>
+      <span class="label">onefile EXE</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEATURES ============ -->
+<section id="features">
+  <div class="container">
+    <div class="section-head">
+      <span class="num">01 / FEATURES</span>
+      <h2>under the hood</h2>
+      <p class="lead">Every feature exists to either find more hits or stop bans. No filler.</p>
+    </div>
+
+    <div class="features-grid">
+
+      <div class="feature">
+        <span class="num">/ 01</span>
+        <h3>auto imap discovery</h3>
+        <p>MX → SRV → Thunderbird autoconfig. No static provider tables. Catches corporate domains, custom hosts, regional ISPs that other checkers miss entirely.</p>
+      </div>
+
+      <div class="feature">
+        <span class="num">/ 02</span>
+        <h3>outlook graph engine</h3>
+        <p>Hotmail / Outlook / Live skip IMAP and hit Microsoft Graph directly. Three-tier fallback: Graph → Substrate token → OWA. Faster, cleaner, fewer false negatives.</p>
+      </div>
+
+      <div class="feature">
+        <span class="num">/ 03</span>
+        <h3>inbox capture + hq scoring</h3>
+        <p>Drop your keywords — PayPal, Netflix, Coinbase, banks, whatever. 71 services pre-weighted, hits sorted by HQ score. Find the gold without grepping logs.</p>
+      </div>
+
+      <div class="feature">
+        <span class="num">/ 04</span>
+        <h3>per-domain thread caps</h3>
+        <p>Gmail = 15, Outlook = 20, Yahoo = 10, Mail.ru = 20. Built-in HostLimiter throttles per-provider so you never trip rate limits while 500 global threads stay free.</p>
+      </div>
+
+      <div class="feature">
+        <span class="num">/ 05</span>
+        <h3>proxy routing</h3>
+        <p>HTTP / SOCKS4 / SOCKS5 — including IMAP-over-SOCKS via custom IMAP4 / IMAP4_SSL classes. Most checkers can't do this and leak your real IP on raw IMAP.</p>
+      </div>
+
+      <div class="feature">
+        <span class="num">/ 06</span>
+        <h3>hwid license</h3>
+        <p>OTP binding via Telegram bot. One HWID = one key. Heartbeat every 6 hours, 24-hour grace on connectivity loss. Auto-updater carries the license over.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ SERVICES ============ -->
+<section id="services">
+  <div class="container">
+    <div class="section-head">
+      <span class="num">02 / CAPTURE TARGETS</span>
+      <h2>what we score</h2>
+      <p class="lead">Every service below has a built-in HQ weight. Found in the inbox, it counts toward the hit's score. Hover for the name.</p>
+    </div>
+
+    <div class="services-summary">
+      <span class="count">71</span>
+      <span>services scored</span>
+      <span>—</span>
+      <span>weights shown top-right</span>
+      <span>—</span>
+      <span>extensible via keywords.txt</span>
+    </div>
+
+    <div class="logo-grid">
+      <div class="logo-cell"><img src="logos/adobe_cc.png" alt="Adobe"><span class="weight">7</span><span class="name">adobe</span></div>
+      <div class="logo-cell"><img src="logos/airbnb.svg" alt="Airbnb"><span class="weight">7</span><span class="name">airbnb</span></div>
+      <div class="logo-cell"><img src="logos/aliexpress.svg" alt="AliExpress"><span class="weight">6</span><span class="name">aliexpress</span></div>
+      <div class="logo-cell"><img src="logos/amazon.png" alt="Amazon"><span class="weight">12</span><span class="name">amazon</span></div>
+      <div class="logo-cell"><img src="logos/apple.svg" alt="Apple"><span class="weight">10</span><span class="name">apple</span></div>
+      <div class="logo-cell"><img src="logos/aws.svg" alt="AWS"><span class="weight">10</span><span class="name">aws</span></div>
+      <div class="logo-cell"><img src="logos/barclays.svg" alt="Barclays"><span class="weight">15</span><span class="name">barclays</span></div>
+      <div class="logo-cell"><img src="logos/binance.svg" alt="Binance"><span class="weight">15</span><span class="name">binance</span></div>
+      <div class="logo-cell"><img src="logos/blizzard.svg" alt="Blizzard"><span class="weight">7</span><span class="name">blizzard</span></div>
+      <div class="logo-cell"><img src="logos/bankofamerica.svg" alt="Bank of America"><span class="weight">15</span><span class="name">bank of america</span></div>
+      <div class="logo-cell"><img src="logos/bookingdotcom.svg" alt="Booking.com"><span class="weight">6</span><span class="name">booking</span></div>
+      <div class="logo-cell"><img src="logos/cashapp.svg" alt="Cash App"><span class="weight">10</span><span class="name">cashapp</span></div>
+      <div class="logo-cell"><img src="logos/chase.svg" alt="Chase"><span class="weight">15</span><span class="name">chase</span></div>
+      <div class="logo-cell"><img src="logos/citibank.svg" alt="Citibank"><span class="weight">15</span><span class="name">citibank</span></div>
+      <div class="logo-cell"><img src="logos/coinbase.svg" alt="Coinbase"><span class="weight">15</span><span class="name">coinbase</span></div>
+      <div class="logo-cell"><img src="logos/discord.png" alt="Discord"><span class="weight">6</span><span class="name">discord</span></div>
+      <div class="logo-cell"><img src="logos/disneyplus.png" alt="Disney+"><span class="weight">8</span><span class="name">disney+</span></div>
+      <div class="logo-cell"><img src="logos/dominos.svg" alt="Domino's"><span class="weight">3</span><span class="name">dominos</span></div>
+      <div class="logo-cell"><img src="logos/doordash.svg" alt="DoorDash"><span class="weight">5</span><span class="name">doordash</span></div>
+      <div class="logo-cell"><img src="logos/dropbox.svg" alt="Dropbox"><span class="weight">5</span><span class="name">dropbox</span></div>
+      <div class="logo-cell"><img src="logos/ea.svg" alt="EA"><span class="weight">6</span><span class="name">ea games</span></div>
+      <div class="logo-cell"><img src="logos/ebay.svg" alt="eBay"><span class="weight">8</span><span class="name">ebay</span></div>
+      <div class="logo-cell"><img src="logos/epicgames.png" alt="Epic Games"><span class="weight">8</span><span class="name">epic games</span></div>
+      <div class="logo-cell"><img src="logos/expedia.svg" alt="Expedia"><span class="weight">5</span><span class="name">expedia</span></div>
+      <div class="logo-cell"><img src="logos/facebook.png" alt="Facebook"><span class="weight">8</span><span class="name">facebook</span></div>
+      <div class="logo-cell"><img src="logos/figma.png" alt="Figma"><span class="weight">5</span><span class="name">figma</span></div>
+      <div class="logo-cell"><img src="logos/garanti.svg" alt="Garanti"><span class="weight">12</span><span class="name">garanti</span></div>
+      <div class="logo-cell"><img src="logos/github.png" alt="GitHub"><span class="weight">6</span><span class="name">github</span></div>
+      <div class="logo-cell"><img src="logos/googledrive.svg" alt="Google Drive"><span class="weight">5</span><span class="name">google drive</span></div>
+      <div class="logo-cell"><img src="logos/grubhub.svg" alt="GrubHub"><span class="weight">4</span><span class="name">grubhub</span></div>
+      <div class="logo-cell"><img src="logos/hbo.svg" alt="HBO"><span class="weight">8</span><span class="name">hbo</span></div>
+      <div class="logo-cell"><img src="logos/hsbc.svg" alt="HSBC"><span class="weight">15</span><span class="name">hsbc</span></div>
+      <div class="logo-cell"><img src="logos/icloud.svg" alt="iCloud"><span class="weight">7</span><span class="name">icloud</span></div>
+      <div class="logo-cell"><img src="logos/instagram.png" alt="Instagram"><span class="weight">8</span><span class="name">instagram</span></div>
+      <div class="logo-cell"><img src="logos/kraken.svg" alt="Kraken"><span class="weight">12</span><span class="name">kraken</span></div>
+      <div class="logo-cell"><img src="logos/linkedin.png" alt="LinkedIn"><span class="weight">6</span><span class="name">linkedin</span></div>
+      <div class="logo-cell"><img src="logos/lyft.svg" alt="Lyft"><span class="weight">5</span><span class="name">lyft</span></div>
+      <div class="logo-cell"><img src="logos/mcdonalds.svg" alt="McDonald's"><span class="weight">3</span><span class="name">mcdonalds</span></div>
+      <div class="logo-cell"><img src="logos/microsoft.svg" alt="Microsoft"><span class="weight">8</span><span class="name">microsoft</span></div>
+      <div class="logo-cell"><img src="logos/monzo.svg" alt="Monzo"><span class="weight">8</span><span class="name">monzo</span></div>
+      <div class="logo-cell"><img src="logos/n26.svg" alt="N26"><span class="weight">10</span><span class="name">n26</span></div>
+      <div class="logo-cell"><img src="logos/netflix.png" alt="Netflix"><span class="weight">10</span><span class="name">netflix</span></div>
+      <div class="logo-cell"><img src="logos/nintendo.svg" alt="Nintendo"><span class="weight">7</span><span class="name">nintendo</span></div>
+      <div class="logo-cell"><img src="logos/notion.png" alt="Notion"><span class="weight">4</span><span class="name">notion</span></div>
+      <div class="logo-cell"><img src="logos/office365.svg" alt="Office 365"><span class="weight">6</span><span class="name">office 365</span></div>
+      <div class="logo-cell"><img src="logos/onedrive.svg" alt="OneDrive"><span class="weight">5</span><span class="name">onedrive</span></div>
+      <div class="logo-cell"><img src="logos/paypal.svg" alt="PayPal"><span class="weight">15</span><span class="name">paypal</span></div>
+      <div class="logo-cell"><img src="logos/playstation.svg" alt="PlayStation"><span class="weight">8</span><span class="name">playstation</span></div>
+      <div class="logo-cell"><img src="logos/reddit.png" alt="Reddit"><span class="weight">5</span><span class="name">reddit</span></div>
+      <div class="logo-cell"><img src="logos/revolut.svg" alt="Revolut"><span class="weight">10</span><span class="name">revolut</span></div>
+      <div class="logo-cell"><img src="logos/riotgames.svg" alt="Riot Games"><span class="weight">7</span><span class="name">riot</span></div>
+      <div class="logo-cell"><img src="logos/shopify.png" alt="Shopify"><span class="weight">7</span><span class="name">shopify</span></div>
+      <div class="logo-cell"><img src="logos/slack.svg" alt="Slack"><span class="weight">5</span><span class="name">slack</span></div>
+      <div class="logo-cell"><img src="logos/snapchat.svg" alt="Snapchat"><span class="weight">5</span><span class="name">snapchat</span></div>
+      <div class="logo-cell"><img src="logos/spotify.png" alt="Spotify"><span class="weight">8</span><span class="name">spotify</span></div>
+      <div class="logo-cell"><img src="logos/square.svg" alt="Square"><span class="weight">10</span><span class="name">square</span></div>
+      <div class="logo-cell"><img src="logos/starbucks.svg" alt="Starbucks"><span class="weight">3</span><span class="name">starbucks</span></div>
+      <div class="logo-cell"><img src="logos/steam.png" alt="Steam"><span class="weight">10</span><span class="name">steam</span></div>
+      <div class="logo-cell"><img src="logos/stripe.svg" alt="Stripe"><span class="weight">12</span><span class="name">stripe</span></div>
+      <div class="logo-cell"><img src="logos/tiktok.png" alt="TikTok"><span class="weight">7</span><span class="name">tiktok</span></div>
+      <div class="logo-cell"><img src="logos/twitch.png" alt="Twitch"><span class="weight">6</span><span class="name">twitch</span></div>
+      <div class="logo-cell"><img src="logos/x.png" alt="Twitter / X"><span class="weight">7</span><span class="name">twitter</span></div>
+      <div class="logo-cell"><img src="logos/uber.svg" alt="Uber"><span class="weight">6</span><span class="name">uber</span></div>
+      <div class="logo-cell"><img src="logos/ubisoft.svg" alt="Ubisoft"><span class="weight">6</span><span class="name">ubisoft</span></div>
+      <div class="logo-cell"><img src="logos/venmo.svg" alt="Venmo"><span class="weight">10</span><span class="name">venmo</span></div>
+      <div class="logo-cell"><img src="logos/wellsfargo.svg" alt="Wells Fargo"><span class="weight">15</span><span class="name">wells fargo</span></div>
+      <div class="logo-cell"><img src="logos/wise.svg" alt="Wise"><span class="weight">10</span><span class="name">wise</span></div>
+      <div class="logo-cell"><img src="logos/xbox.svg" alt="Xbox"><span class="weight">8</span><span class="name">xbox</span></div>
+      <div class="logo-cell"><img src="logos/youtube.png" alt="YouTube"><span class="weight">7</span><span class="name">youtube</span></div>
+      <div class="logo-cell"><img src="logos/ziraat.svg" alt="Ziraat"><span class="weight">12</span><span class="name">ziraat</span></div>
+      <div class="logo-cell"><img src="logos/zoom.png" alt="Zoom"><span class="weight">5</span><span class="name">zoom</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRICING ============ -->
+<section class="pricing" id="pricing">
+  <div class="container">
+    <div class="section-head" style="text-align: center;">
+      <span class="num">03 / PRICING</span>
+      <h2>annual license</h2>
+    </div>
+
+    <div class="pricing-wrap">
+      <div class="price-card">
+        <div class="label">aio imap checker</div>
+
+        <div class="price-row">
+          <div class="amount">30</div>
+          <div class="currency">USD</div>
+        </div>
+        <div class="period">/ year</div>
+
+        <ul>
+          <li>Full access to IMAP / SMTP / Outlook Graph engine</li>
+          <li>Free updates throughout the year</li>
+          <li>Personal support on Telegram, 24/7</li>
+          <li>HWID binding: one machine / one key</li>
+          <li>Price locked through end of 2026</li>
+          <li class="killed">7-day trial</li>
+          <li class="killed">monthly subscription</li>
+        </ul>
+
+        <div class="trial-killed-note">
+          <strong>// no more trials</strong>
+          Annual only, serious only. Screenshots in the thread OP, video demo below.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONTACT ============ -->
+<section class="contact" id="contact">
+  <div class="container">
+    <div class="section-head" style="text-align: center;">
+      <span class="num">04 / PURCHASE</span>
+      <h2>contact</h2>
+    </div>
+
+    <a href="https://t.me/Orelus_BOT" class="telegram-handle">@Orelus_BOT</a>
+
+    <p class="note">
+      Bot will provide payment details and activate the key automatically.<br>
+      Access — within five minutes after transaction confirmation.<br>
+      Bug reports and questions — DM <strong>@orelus_support</strong>
+    </p>
+
+    <div class="pay-methods">
+      <span>USDT</span>
+      <span>BNB</span>
+      <span>BTC</span>
+      <span>LOLZMARKET</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div>AIO IMAP CHECKER &copy; 2026</div>
+  <div class="build">V3.0.0.0 / NUITKA ONEFILE / WIN10+ X64</div>
+</footer>
+
+<script>
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 50);
+  }, { passive: true });
+</script>
+
+</body>
+</html>
